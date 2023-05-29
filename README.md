@@ -1,30 +1,61 @@
-# typescript-mongodb
+# controller-builder
 
-Simple API layer for MongoDB with TypeScript support.
+Helper function designed to simplify the process of creating controllers for web applications by handling the boilerplate code.
+
+
 
 This is a work in progress.
 
 ## Install
 
+```
+npm install controller-builder
+```
+
 ## Usage
 
 ```ts
-import { Client } from "typescript-mongodb"
+import { builder } from 'controller-builder';
 
-type Config = {
-  'my-data-base': ['collection1', 'collection2']
+// with args
+const fn = async (name: string) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve(`Hello ${name}`)
+    }, 1000)
+  })
 }
 
-const client = new Client<Config>({
-  uri,
-})
+const controller = builder()
+  .express()
+  .input((req, res, next) => {
+    return req.query.name
+  })
+  // ts will check if return type of input matches the expected type of fn
+  .execute(fn)
 
+const app = express()
 
-const collection = client.ref('first.collectionOfFirstDb')
+app.get("/", controller)
+```
 
-// OR
+```ts
+import { builder } from 'controller-builder';
 
-const db = client.dbRef('first')
-const collection = db.collectionRef('collectionOfFirstDb')
+// without args
+const fn = async () => {
+ return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve(`Hello World`)
+    }, 1000)
+  })
+}
 
+const controller = builder()
+  .express()
+  .execute(fn)
+
+const app = express()
+
+app.get("/", controller)
 ```
